@@ -7,6 +7,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
   },
+  base: './',
   plugins: [react()],
   server: {
     port: 5173,

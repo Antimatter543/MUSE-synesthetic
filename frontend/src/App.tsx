@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CameraPreview } from './components/CameraPreview';
 import { ImageGallery } from './components/ImageGallery';
 import { ModeSelector } from './components/ModeSelector';
@@ -28,6 +28,7 @@ export default function App() {
   const [gallery, setGallery] = useState<GalleryEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'transcript' | 'gallery'>('transcript');
   const [isCreatingArt, setIsCreatingArt] = useState(false);
+  const [pendingStart, setPendingStart] = useState(false);
   const { playAudio, initialize: initAudio } = useAudioPlayback();
 
   // Handle events from backend
@@ -85,7 +86,7 @@ export default function App() {
     [playAudio]
   );
 
-  const { status, sendBinary, sendJSON } = useWebSocket({
+  const { status, sendBinary, sendJSON, connect, disconnect } = useWebSocket({
     sessionId: SESSION_ID,
     onEvent: handleEvent,
     onAudio: handleAudio,
@@ -128,15 +129,36 @@ export default function App() {
     });
   };
 
-  const handleStartSession = async () => {
-    await initAudio();
-    setIsListening(true);
-    setIsCameraOn(true);
+  useEffect(() => {
+    if (!pendingStart || status !== 'connected') return;
+
+    let cancelled = false;
+
+    (async () => {
+      await initAudio();
+      if (cancelled) return;
+      setIsListening(true);
+      setIsCameraOn(true);
+      setPendingStart(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pendingStart, status, initAudio]);
+
+  const handleStartSession = () => {
+    if (status !== 'connected') {
+      connect();
+    }
+    setPendingStart(true);
   };
 
   const handleStop = () => {
+    setPendingStart(false);
     setIsListening(false);
     setIsCameraOn(false);
+    disconnect();
   };
 
   const isActive = isListening || isCameraOn;
@@ -189,14 +211,14 @@ export default function App() {
             {!isActive ? (
               <button
                 onClick={handleStartSession}
-                disabled={status !== 'connected'}
+                disabled={status === 'connecting' || pendingStart}
                 className="w-full py-3 rounded-xl font-semibold text-white
                   bg-gradient-to-r from-muse-accent to-muse-accent2
                   hover:opacity-90 transition-opacity
                   disabled:opacity-40 disabled:cursor-not-allowed
                   shadow-lg shadow-muse-accent/20"
               >
-                {status === 'connected' ? 'Start Session' : 'Connecting...'}
+                {status === 'connecting' || pendingStart ? 'Connecting...' : 'Start Session'}
               </button>
             ) : (
               <button

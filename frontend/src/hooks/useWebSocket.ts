@@ -19,6 +19,11 @@ export function useWebSocket({ sessionId, onEvent, onAudio }: UseWebSocketOption
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    shouldReconnect.current = true;
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = import.meta.env.VITE_BACKEND_URL
@@ -83,8 +88,13 @@ export function useWebSocket({ sessionId, onEvent, onAudio }: UseWebSocketOption
 
   const disconnect = useCallback(() => {
     shouldReconnect.current = false;
-    if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
     wsRef.current?.close();
+    wsRef.current = null;
+    setStatus('disconnected');
   }, []);
 
   const sendBinary = useCallback((data: ArrayBuffer) => {
@@ -99,16 +109,18 @@ export function useWebSocket({ sessionId, onEvent, onAudio }: UseWebSocketOption
     }
   }, []);
 
-  // Auto-connect on mount
+  // Cleanup on unmount
   useEffect(() => {
-    shouldReconnect.current = true;
-    connect();
     return () => {
       shouldReconnect.current = false;
-      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+        reconnectTimer.current = null;
+      }
       wsRef.current?.close();
+      wsRef.current = null;
     };
-  }, [connect]);
+  }, []);
 
   return { status, sendBinary, sendJSON, connect, disconnect };
 }

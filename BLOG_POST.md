@@ -332,3 +332,7 @@ The broader idea — using AI to build cross-modal translation as a first-class 
 ---
 
 *MUSE was built for the Gemini Live Agent Challenge. The full source is available on GitHub. Built with `google-adk` 1.26.0, Gemini 2.5 Flash Native Audio, FastAPI, and more lines of AudioWorklet debugging than we'd like to admit.*
+
+---
+
+*This post was created as part of my entry to the Gemini Live Agent Challenge. #GeminiLiveAgentChallenge*
