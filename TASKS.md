@@ -20,7 +20,7 @@
 | 9b | Upload demo to YouTube with TTS narration | ✅ Done | https://youtu.be/i8clcrwrNLo (re-uploaded with fixed stereo audio Mar 4 2026) |
 | 11 | Submit Devpost (add video URL) | ✅ Done | Submitted Mar 4 2026. Video: https://youtu.be/i8clcrwrNLo, Blog: https://dev.to/antimatter543/building-an-ai-synesthesia-engine-with-gemini-live-api-and-adk-2a22 |
 | 11a | Generate architecture diagram | ✅ Done | deploy/architecture.svg ready to upload to Devpost |
-| 12 | GDG community signup (bonus) | ⬜ Todo | Optional bonus |
+| 12 | GDG community signup (bonus) | ✅ Done | Joined GDG Brisbane. Profile: https://gdg.community.dev/u/mv8vhm/ |
 | 13 | Optimize WebSocket session lifecycle to reduce idle usage | ✅ Done | Frontend now connects only on Start Session and disconnects on End Session |
 
 ## Critical Path

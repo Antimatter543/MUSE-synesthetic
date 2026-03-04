@@ -67,6 +67,36 @@ FastAPI Server (Cloud Run, port 8080)
               Output key: narrative_segment
 ```
 
+### Architecture Diagram
+
+```mermaid
+graph TD
+    Browser["🌐 Browser\n(React + Vite + AudioWorklet)"]
+    WS["WebSocket\n/ws/{session_id}"]
+    FastAPI["⚡ FastAPI Server\n(Cloud Run · port 8080)"]
+    ADK["ADK Runner\n+ LiveRequestQueue"]
+    Orch["🎭 MuseOrchestrator\nGemini 2.5 Flash Native Audio Live"]
+    ImgGen["🎨 generate_synesthetic_image\nGemini 2.0 Flash (image gen)"]
+    GCS["☁️ Cloud Storage\n(image bytes)"]
+    Firestore["🗄️ Firestore\n(gallery metadata)"]
+    Poetry["✍️ PoetryAgent\nGemini 2.5 Flash"]
+    Narrative["📖 NarrativeAgent\nGemini 2.5 Flash"]
+
+    Browser -- "Binary PCM audio (16kHz)" --> WS
+    Browser -- "JSON video frames @1fps" --> WS
+    Browser -- "JSON text/control/mode" --> WS
+    WS --> FastAPI
+    FastAPI --> ADK
+    ADK --> Orch
+    Orch -- "tool call" --> ImgGen
+    ImgGen -- "upload" --> GCS
+    ImgGen -- "save metadata" --> Firestore
+    Orch -- "sub-agent" --> Poetry
+    Orch -- "sub-agent" --> Narrative
+    ImgGen -- "base64 JPEG → image_generated event" --> FastAPI
+    FastAPI -- "PCM audio + JSON events" --> Browser
+```
+
 WebSocket binary frames from the server carry a null-terminated JSON header followed immediately by raw PCM audio bytes:
 
 ```
