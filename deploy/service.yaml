@@ -1,0 +1,41 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: muse-backend
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/session-affinity: "true"
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "10"
+    spec:
+      timeoutSeconds: 3600
+      containerConcurrency: 80
+      containers:
+        - image: gcr.io/project-b5adb824-a03c-48da-935/muse-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GOOGLE_CLOUD_PROJECT
+              value: project-b5adb824-a03c-48da-935
+            - name: GOOGLE_CLOUD_LOCATION
+              value: us-central1
+            - name: GCS_BUCKET_NAME
+              value: muse-gallery-images-91690
+            - name: FIRESTORE_COLLECTION
+              value: muse_gallery
+            - name: CORS_ORIGINS
+              value: "*"
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: google-api-key
+                  key: latest
+          resources:
+            limits:
+              cpu: "2"
+              memory: "2Gi"

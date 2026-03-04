@@ -1,0 +1,54 @@
+steps:
+  # Build backend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/muse-backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/muse-backend:latest'
+      - './muse/backend'
+
+  # Push image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/muse-backend'
+
+  # Deploy backend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - muse-backend
+      - '--image=gcr.io/$PROJECT_ID/muse-backend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--timeout=3600'
+      - '--session-affinity'
+      - '--min-instances=1'
+      - '--memory=2Gi'
+      - '--cpu=2'
+      - '--set-secrets=GOOGLE_API_KEY=google-api-key:latest'
+      - '--set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=muse-gallery-images-91690,CORS_ORIGINS=*'
+
+  # Build frontend
+  - name: 'node:20'
+    dir: './muse/frontend'
+    entrypoint: bash
+    args:
+      - '-c'
+      - 'npm ci && npm run build'
+    env:
+      - 'VITE_BACKEND_URL=https://muse-backend-873840430322.us-central1.run.app'
+
+images:
+  - 'gcr.io/$PROJECT_ID/muse-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/muse-backend:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
