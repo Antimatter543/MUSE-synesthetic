@@ -14,10 +14,11 @@
 | 6 | Start Devpost draft | ✅ Done | Draft exists, needs video URL |
 | 7 | Deploy backend to Cloud Run | ✅ Done | https://muse-backend-873840430322.us-central1.run.app |
 | 8 | Deploy frontend (GCS static) | ✅ Done | https://storage.googleapis.com/muse-frontend-project-b5adb824-a03c-48da-935/index.html |
-| 9 | Record 4-minute demo video | ⬜ Todo | Script ready in DEMO_SCRIPT.md |
-| 10 | Publish blog post on dev.to | ⬜ Todo | BLOG_POST.md ready with #GeminiLiveAgentChallenge tag |
+| 9 | Record 4-minute demo video | ✅ Done | demo-video/muse-demo.mp4 (recorded via Playwright) |
+| 10 | Publish blog post on dev.to | ✅ Done | https://dev.to/antimatter543/building-an-ai-synesthesia-engine-with-gemini-live-api-and-adk-2a22 |
 | 10a | Add hashtag to BLOG_POST.md | ✅ Done | Added footer with #GeminiLiveAgentChallenge |
-| 11 | Submit Devpost (add video URL) | ⬜ Todo | Depends on #9 |
+| 9b | Upload demo to YouTube with TTS narration | ✅ Done | https://youtu.be/_K7JpoaTRC4 |
+| 11 | Submit Devpost (add video URL) | ✅ Done | Submitted Mar 4 2026. Video: https://youtu.be/_K7JpoaTRC4, Blog: https://dev.to/antimatter543/building-an-ai-synesthesia-engine-with-gemini-live-api-and-adk-2a22 |
 | 11a | Generate architecture diagram | ✅ Done | deploy/architecture.svg ready to upload to Devpost |
 | 12 | GDG community signup (bonus) | ⬜ Todo | Optional bonus |
 | 13 | Optimize WebSocket session lifecycle to reduce idle usage | ✅ Done | Frontend now connects only on Start Session and disconnects on End Session |
