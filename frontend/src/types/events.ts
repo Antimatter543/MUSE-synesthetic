@@ -41,13 +41,18 @@ export interface ErrorEvent {
   message: string;
 }
 
+export interface GeneratingImageEvent {
+  type: 'generating_image';
+}
+
 export type MuseEvent =
   | ConnectedEvent
   | TranscriptEvent
   | ImageGeneratedEvent
   | GalleryUpdatedEvent
   | TurnCompleteEvent
-  | ErrorEvent;
+  | ErrorEvent
+  | GeneratingImageEvent;
 
 // Gallery entry
 export interface GalleryEntry {
