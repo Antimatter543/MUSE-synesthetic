@@ -16,6 +16,7 @@ export function useWebSocket({ sessionId, onEvent, onAudio }: UseWebSocketOption
   const reconnectCount = useRef(0);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldReconnect = useRef(true);
+  const connectRef = useRef<() => void>(() => {});
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
@@ -49,7 +50,7 @@ export function useWebSocket({ sessionId, onEvent, onAudio }: UseWebSocketOption
         reconnectCount.current < MAX_RECONNECT_ATTEMPTS
       ) {
         reconnectCount.current++;
-        reconnectTimer.current = setTimeout(connect, RECONNECT_DELAY_MS);
+        reconnectTimer.current = setTimeout(() => connectRef.current(), RECONNECT_DELAY_MS);
       }
     };
 
@@ -108,6 +109,11 @@ export function useWebSocket({ sessionId, onEvent, onAudio }: UseWebSocketOption
       wsRef.current.send(JSON.stringify(data));
     }
   }, []);
+
+  // Keep connectRef pointing to the latest connect (avoids stale closure in ws.onclose)
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   // Cleanup on unmount
   useEffect(() => {

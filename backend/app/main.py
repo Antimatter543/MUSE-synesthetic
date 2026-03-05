@@ -265,6 +265,13 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         {"session_id": session_id, "message": "MUSE is ready"},
     )
 
+    # Kick off the model — without an initial user message the Live model waits silently
+    initial_content = genai_types.Content(
+        role="user",
+        parts=[genai_types.Part(text="[Session started. Camera is now active. Begin your synesthetic experience — describe what you sense and generate art proactively.]")],
+    )
+    session.live_queue.send_content(initial_content)
+
     # Run ADK streaming and client message handling concurrently
     async def receive_loop():
         try:
